@@ -4,24 +4,28 @@ import lombok.RequiredArgsConstructor;
 import openLegacyStore.openLegacyStore.Beans.Product;
 import openLegacyStore.openLegacyStore.Exceptions.AlreadyExistsException;
 import openLegacyStore.openLegacyStore.Exceptions.IllegalRequestException;
+import openLegacyStore.openLegacyStore.Exceptions.NotFoundException;
 import openLegacyStore.openLegacyStore.Service.ProductService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("store")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-public class myTest {
+public class StoreController {
     private final ProductService productService;
 
+    //client
     @PostMapping("withdrawProduct")
-    private ResponseEntity<?> withdrawProduct(@RequestBody Product product, int amount) throws Exception {
+    private ResponseEntity<?> withdrawProduct(@RequestBody int productId, int amount) throws Exception {
         try {
-            productService.withdrawProduct(product, amount);
+            productService.withdrawProduct(productId, amount);
             return ResponseEntity.accepted()
                     .body("successfully purchased");
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (IllegalRequestException e) {
             throw new IllegalRequestException(e.getMessage());
         } catch (Exception e) {
@@ -29,19 +33,21 @@ public class myTest {
         }
     }
 
+    //supplier
     @PostMapping("addProduct")
-    public ResponseEntity<?> addProduct(@RequestBody Product product) throws Exception {
+    public ResponseEntity<?> addAmountProduct(@RequestBody int productId, int amount) throws Exception {
         try {
-            productService.addProduct(product);
+            productService.addAmountProduct(productId, amount);
             return ResponseEntity.accepted()
-                    .body("created successfully");
-        } catch (AlreadyExistsException e) {
-            throw new AlreadyExistsException(e.getMessage());
+                    .body("amount added successfully");
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
     }
 
+    //admin
     @PostMapping("updateProduct")
     @ResponseStatus(code = HttpStatus.ACCEPTED)
     public ResponseEntity<?> updateProduct(@RequestBody Product product) throws Exception {
@@ -56,12 +62,27 @@ public class myTest {
         }
     }
 
+    @PostMapping("addNewProduct")
+    public ResponseEntity<?> addNewProduct(@RequestBody Product product) throws Exception {
+        try {
+            productService.addNewProduct(product);
+            return ResponseEntity.accepted()
+                    .body("created successfully");
+        } catch (AlreadyExistsException e) {
+            throw new AlreadyExistsException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
     @DeleteMapping("deleteProduct/:{id}")
     public ResponseEntity<?> deleteProduct(@PathVariable int id) throws Exception {
         try {
             productService.deleteProduct(id);
             return ResponseEntity.accepted()
                     .body("deleted successfully");
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
         } catch (Exception e) {
             throw new Exception(e.getMessage());
         }
@@ -76,5 +97,18 @@ public class myTest {
             throw new Exception(e.getMessage());
         }
     }
+
+    @PostMapping("getProductsAlmostFinish")
+    public ResponseEntity<?> getProductsAlmostFinish(int amount) throws Exception {
+        try {
+            return ResponseEntity.ok()
+                    .body(productService.getProductsAmountLessThen(amount));
+        } catch (NotFoundException e) {
+            throw new NotFoundException(e.getMessage());
+        } catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
 
 }

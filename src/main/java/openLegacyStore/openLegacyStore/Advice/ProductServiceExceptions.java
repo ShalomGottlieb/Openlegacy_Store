@@ -9,9 +9,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * this class takes care of all exceptions in project that needs to get to client side and sends them by REST
- */
 @RestController
 @ControllerAdvice
 public class ProductServiceExceptions {
@@ -28,10 +25,16 @@ public class ProductServiceExceptions {
         return new ErrorDetail("Illegal Request error", e.getMessage());
     }
 
+    @ExceptionHandler(value = {NotFoundException.class})
+    @ResponseStatus(code = HttpStatus.BAD_REQUEST)
+    public ErrorDetail handleNotFoundException(Exception e) {
+        return new ErrorDetail("Not Found error", e.getMessage());
+    }
+
     @ExceptionHandler(value = {Exception.class})
     @ResponseStatus(code = HttpStatus.METHOD_NOT_ALLOWED)
     public ErrorDetail generalException(Exception err){
-        return new ErrorDetail("Error in send","An error has occurred ,with you forgiveness\n"+ err.getMessage());
+        return new ErrorDetail("System Error","An error has occurred ,with you forgiveness\n"+ err.getMessage());
     }
 
 

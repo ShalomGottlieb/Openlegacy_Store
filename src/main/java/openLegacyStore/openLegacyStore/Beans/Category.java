@@ -6,9 +6,7 @@ package openLegacyStore.openLegacyStore.Beans;
 public enum Category {
     FOOD,
     ELECTRICITY,
-    RESTAURANT,
-    VACATION,
     HOME,
-    CLOTHING
+    OTHER,
 
 }
